@@ -11,24 +11,37 @@ function App() {
     data:[]
   });
 
-
+  const [PaginationItem,setPaginationItem]=useState([])   //pass array in initial data because we use map method
 
   //2.functions
+  let goToPage = (e)=>{
+    console.log(e.target.innerHTML);
+    var pageno = parseInt(e.target.innerHTML);
+    getStudents(e,pageno);
+  }
   let last= (e)=>{
     console.log("last")
     if(student.meta.pagination.page !== student.meta.pagination.pageCount){
-      getStudents(student.meta.pagination.pageCount)
+      getStudents(e,student.meta.pagination.pageCount)
     }
   }
   let next= (e)=>{
     console.log("next")
+    if (student.meta.pagination.page !== student.meta.pagination.pageCount){
+      getStudents(e,student.meta.pagination.page+1)
+    }
   }
   let first =(e)=>{
     console.log("first");
-    getStudents(e,1);
+    if(student.meta.pagination.page !==1){
+      getStudents(e,1);
+    }
   }
   let previous =(e)=>{
     console.log("previous")
+    if(student.meta.pagination.page !==1){
+      getStudents(e,student.meta.pagination.page - 1)
+    }
   }
   let getStudents = (e,pageno=1)=>{
     console.log("hello");
@@ -45,7 +58,20 @@ function App() {
         console.log(data);
     
         //now set the data in hook variable
-        setStudent(data)
+        setStudent(data);
+        var start = data.meta.pagination.page
+
+        var arr =[];
+        for (let i = start; i <= data.meta.pagination.pageCount; i++) {
+          if(i==start){
+            arr.push(<Pagination.Item active onClick={(e)=>{goToPage(e)}}>{i}</Pagination.Item>)
+          }else{
+            arr.push(<Pagination.Item onClick={(e)=>{goToPage(e)}}>{i}</Pagination.Item>)
+          }
+          
+        }
+        setPaginationItem(arr);
+        
       }).catch((err)=>{
         console.log(err);
       });
@@ -58,8 +84,10 @@ function App() {
   return (
     
       <>
+          <div className='d-flex justify-content-center'>
           <h1>Read Operation</h1>
           <Button onClick={(e)=>{ getStudents (e)}}>Get Friends</Button>
+          </div>
           {
             student.data.length > 0 &&
           <>
@@ -96,17 +124,13 @@ function App() {
             <Pagination className="d-flex justify-content-center">
               <Pagination.First onClick={(e)=>{first(e)}} />
               <Pagination.Prev onClick={(e)=>{previous(e)}} />
-             {/*  <Pagination.Item>{1}</Pagination.Item>
-              <Pagination.Ellipsis />
-            
-              <Pagination.Item>{10}</Pagination.Item>
-              <Pagination.Item>{11}</Pagination.Item>
-              <Pagination.Item active>{12}</Pagination.Item>
-              <Pagination.Item>{13}</Pagination.Item>
-              <Pagination.Item disabled>{14}</Pagination.Item>
-            
-              <Pagination.Ellipsis />
-              <Pagination.Item>{20}</Pagination.Item> */}
+              {
+              //PaginationItem.length > 0 &&
+              PaginationItem.map(function (currentValue,index,arr){
+                return currentValue
+              })
+              }
+          
               <Pagination.Next onClick={(e)=>{next(e)}} />
               <Pagination.Last onClick={(e)=>{last(e)}} />
             </Pagination>
